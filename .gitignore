@@ -5,6 +5,7 @@ __pycache__/
 *.so
 backend/venv/
 backend/.env
+!backend/.env.example
 *.egg-info/
 dist/
 build/

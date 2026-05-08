@@ -14,5 +14,9 @@ class Settings:
 
     STEAM_API_KEY: str = os.getenv("STEAM_API_KEY", "")
 
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL", "postgresql://postgres:password@localhost:5432/trendpulse_db"
+    )
+
 
 settings = Settings()
