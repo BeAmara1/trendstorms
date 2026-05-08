@@ -84,3 +84,48 @@ export interface HistoryPoint {
   score: number
   growth: number
 }
+
+export interface GrowthClassification {
+  id: number
+  title: string
+  category: string
+  growth: number
+  classification: "exploding" | "rising" | "stable" | "declining" | "crashing"
+  score: number
+}
+
+export interface MomentumTrend {
+  id: number
+  title: string
+  category: string
+  momentum: "accelerating" | "high" | "decelerating" | "low"
+  velocity: number
+  acceleration: number
+}
+
+export interface Correlation {
+  title: string
+  category: string
+  sources: string[]
+  source_count: number
+  avg_growth: number
+  avg_score: number
+  correlation_score: number
+}
+
+export interface Insights {
+  trend_insights: string[]
+  correlation_insights: string[]
+}
+
+export interface Forecast {
+  trend_id: number
+  title: string
+  current_hype: number
+  average_hype: number
+  smoothed: number[]
+  predictions: number[]
+  trend_direction: "up" | "down"
+  steps_analyzed: number
+  forecast_steps: number
+}

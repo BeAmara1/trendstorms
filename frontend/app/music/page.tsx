@@ -3,8 +3,10 @@
 import { DashboardLayout } from "@/components/layout";
 import { MusicCard } from "@/components/cards";
 import { GenreDistributionChart } from "@/components/charts";
+import GlassCard from "@/components/ui/GlassCard";
+import HeroSection from "@/components/ui/HeroSection";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/Animated";
-import { LoadingGrid } from "@/components/ui/Loading";
+import { SkeletonCard } from "@/components/ui/Skeleton";
 import { ErrorState, EmptyState } from "@/components/ui/ErrorState";
 import { useAsync } from "@/hooks";
 import { fetchTopMusic, fetchTopArtists } from "@/services/api";
@@ -25,20 +27,19 @@ export default function MusicPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        <FadeIn>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Music</h1>
-            <p className="text-zinc-400 text-sm mt-1">Top tracks and artists</p>
-          </div>
-        </FadeIn>
+      <div className="space-y-6 md:space-y-8">
+        <HeroSection
+          title="Music"
+          subtitle="Top tracks and artists"
+          metric={tracks.data?.[0] ? { label: "Top Popularity", value: tracks.data[0].popularity, decimals: 0 } : undefined}
+        />
 
         {genreChart.length > 0 && (
           <FadeIn delay={0.1}>
-            <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-5">
+            <GlassCard>
               <h2 className="text-white text-sm font-semibold mb-4">Genre Distribution</h2>
               <GenreDistributionChart data={genreChart} />
-            </div>
+            </GlassCard>
           </FadeIn>
         )}
 
@@ -47,7 +48,9 @@ export default function MusicPage() {
             <h2 className="text-white text-lg font-semibold">Top Tracks</h2>
           </div>
           {tracks.loading ? (
-            <LoadingGrid count={6} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+            </div>
           ) : tracks.error ? (
             <ErrorState message={tracks.error} onRetry={tracks.refetch} />
           ) : !tracks.data?.length ? (
@@ -68,7 +71,9 @@ export default function MusicPage() {
             <h2 className="text-white text-lg font-semibold">Top Artists</h2>
           </div>
           {artists.loading ? (
-            <LoadingGrid count={4} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+            </div>
           ) : artists.error ? (
             <ErrorState message={artists.error} onRetry={artists.refetch} />
           ) : !artists.data?.length ? (

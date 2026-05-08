@@ -6,6 +6,11 @@ import type {
   MovieList,
   HypeScore,
   HistoryPoint,
+  GrowthClassification,
+  MomentumTrend,
+  Correlation,
+  Insights,
+  Forecast,
 } from "@/types";
 
 const api = axios.create({
@@ -106,5 +111,41 @@ export async function fetchTrendHistory(
   params?: { limit?: number }
 ): Promise<HistoryPoint[]> {
   const { data } = await api.get(`/analytics/history/${trendId}`, { params });
+  return data;
+}
+
+export async function fetchExploding(params?: {
+  limit?: number;
+}): Promise<GrowthClassification[]> {
+  const { data } = await api.get("/analytics/exploding", { params });
+  return data;
+}
+
+export async function fetchMomentum(params?: {
+  limit?: number;
+}): Promise<MomentumTrend[]> {
+  const { data } = await api.get("/analytics/momentum", { params });
+  return data;
+}
+
+export async function fetchCorrelations(params?: {
+  threshold?: number;
+}): Promise<Correlation[]> {
+  const { data } = await api.get("/analytics/correlations", { params });
+  return data;
+}
+
+export async function fetchInsights(params?: {
+  limit?: number;
+}): Promise<Insights> {
+  const { data } = await api.get("/analytics/insights", { params });
+  return data;
+}
+
+export async function fetchForecast(
+  trendId: number,
+  params?: { steps?: number }
+): Promise<Forecast> {
+  const { data } = await api.get(`/analytics/forecast/${trendId}`, { params });
   return data;
 }

@@ -18,5 +18,26 @@ class Settings:
         "DATABASE_URL", "postgresql://postgres:password@localhost:5432/trendpulse_db"
     )
 
+    ENV: str = os.getenv("ENV", "development")
+
+    ALLOWED_ORIGINS: str = os.getenv(
+        "ALLOWED_ORIGINS",
+        "http://localhost:3000,http://127.0.0.1:3000",
+    )
+
+    SENTRY_DSN: str = os.getenv("SENTRY_DSN", "")
+
+    @property
+    def is_production(self) -> bool:
+        return self.ENV == "production"
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
+
+    @property
+    def database_url_override(self) -> str | None:
+        return os.getenv("DATABASE_URL")
+
 
 settings = Settings()

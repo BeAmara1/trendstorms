@@ -1,6 +1,7 @@
 "use client";
 
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import GlassCard from "@/components/ui/GlassCard";
 import type { Trend } from "@/types";
 
 const categoryColors: Record<string, string> = {
@@ -19,19 +20,19 @@ export default function TrendCard({ trend }: { trend: Trend }) {
   const growthColor = trend.growth > 0 ? "text-green-400" : trend.growth < 0 ? "text-red-400" : "text-zinc-400";
 
   return (
-    <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-5 hover:border-zinc-700 transition-all">
+    <GlassCard>
       <div className="flex items-start justify-between mb-3">
         <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${colorClass}`}>
           {trend.category}
         </span>
-        <span className="text-2xl font-bold text-white">{trend.score}</span>
+        <span className="text-2xl font-bold text-white tabular-nums">{trend.score}</span>
       </div>
       <h3 className="text-white font-semibold text-sm mb-1 truncate">{trend.title}</h3>
       <p className="text-xs text-zinc-500 mb-3 capitalize">{trend.source}</p>
       <div className={`flex items-center gap-1 text-xs ${growthColor}`}>
         <GrowthIcon className="w-3.5 h-3.5" />
-        <span>{Math.abs(trend.growth)}%</span>
+        <span className="tabular-nums">{Math.abs(trend.growth)}%</span>
       </div>
-    </div>
+    </GlassCard>
   );
 }

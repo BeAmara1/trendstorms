@@ -8,8 +8,11 @@ import { RankingChart } from "@/components/charts";
 import { FilterBar } from "@/components/filters";
 import { MomentumCard } from "@/components/analytics";
 import SearchBar from "@/components/ui/SearchBar";
+import HeroSection from "@/components/ui/HeroSection";
+import GlassCard from "@/components/ui/GlassCard";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/Animated";
-import { LoadingGrid, Loading } from "@/components/ui/Loading";
+import { SkeletonCard, SkeletonHero, SkeletonChart } from "@/components/ui/Skeleton";
+import { Loading } from "@/components/ui/Loading";
 import { ErrorState, EmptyState } from "@/components/ui/ErrorState";
 import { useAsync } from "@/hooks";
 import {
@@ -31,20 +34,24 @@ export default function Home() {
   const music = useAsync(() => fetchTopMusic({ limit: 4 }), []);
   const growth = useAsync(() => fetchTopGrowing({ limit: 8 }), []);
 
+  const topGrown = growth.data?.[0];
+  const topTrend = trends.data?.[0];
+
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        <FadeIn>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Cultural Trends</h1>
-              <p className="text-zinc-400 text-sm mt-1">
-                Real-time analytics from Spotify, Steam, TMDB and Google Trends
-              </p>
-            </div>
-            <SearchBar />
-          </div>
-        </FadeIn>
+      <div className="space-y-6 md:space-y-8">
+        {/* Hero Section */}
+        <HeroSection
+          title={topTrend?.title || "Cultural Trends"}
+          subtitle={
+            topTrend
+              ? `Real-time analytics from Spotify, Steam, TMDB and Google Trends`
+              : "Real-time analytics from Spotify, Steam, TMDB and Google Trends"
+          }
+          badge={topGrown && topGrown.growth_rate > 50 ? { variant: "exploding", label: "Exploding" } : undefined}
+          growth={topGrown?.growth_rate}
+          metric={topTrend ? { label: "Top Score", value: topTrend.score, decimals: 0, suffix: " pts" } : undefined}
+        />
 
         <FadeIn delay={0.05}>
           <FilterBar
@@ -76,12 +83,14 @@ export default function Home() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-white text-lg font-semibold">Top Trends</h2>
-            <Link href="/analytics" className="text-xs text-purple-400 hover:text-purple-300">
+            <Link href="/analytics" className="text-xs text-purple-400 hover:text-purple-300 transition-colors">
               View all
             </Link>
           </div>
           {trends.loading ? (
-            <LoadingGrid count={6} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+            </div>
           ) : trends.error ? (
             <ErrorState message={trends.error} onRetry={trends.refetch} />
           ) : !trends.data?.length ? (
@@ -104,22 +113,22 @@ export default function Home() {
           <section>
             <h2 className="text-white text-lg font-semibold mb-4">Highest Growth</h2>
             {growth.loading ? (
-              <Loading />
+              <SkeletonChart />
             ) : growth.error ? (
               <ErrorState message={growth.error} onRetry={growth.refetch} />
             ) : !growth.data?.length ? (
               <EmptyState />
             ) : (
-              <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-5">
+              <GlassCard>
                 <RankingChart
                   data={growth.data.map((g: any, i: number) => ({
                     rank: i + 1,
                     name: g.title,
                     value: g.growth_rate,
                   }))}
-                  color="#22d3ee"
+                  color="#06B6D4"
                 />
-              </div>
+              </GlassCard>
             )}
           </section>
         </FadeIn>
@@ -128,12 +137,14 @@ export default function Home() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-white text-lg font-semibold">Top Games</h2>
-            <Link href="/games" className="text-xs text-purple-400 hover:text-purple-300">
+            <Link href="/games" className="text-xs text-purple-400 hover:text-purple-300 transition-colors">
               View all
             </Link>
           </div>
           {games.loading ? (
-            <LoadingGrid count={4} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+            </div>
           ) : games.error ? (
             <ErrorState message={games.error} onRetry={games.refetch} />
           ) : !games.data?.length ? (
@@ -150,16 +161,18 @@ export default function Home() {
         </section>
 
         {/* Trending Movies & Music */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-white text-lg font-semibold">Trending Movies</h2>
-              <Link href="/movies" className="text-xs text-purple-400 hover:text-purple-300">
+              <Link href="/movies" className="text-xs text-purple-400 hover:text-purple-300 transition-colors">
                 View all
               </Link>
             </div>
             {movies.loading ? (
-              <LoadingGrid count={2} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {Array.from({ length: 2 }).map((_, i) => <SkeletonCard key={i} />)}
+              </div>
             ) : movies.error ? (
               <ErrorState message={movies.error} onRetry={movies.refetch} />
             ) : !movies.data?.length ? (
@@ -177,12 +190,14 @@ export default function Home() {
           <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-white text-lg font-semibold">Trending Music</h2>
-              <Link href="/music" className="text-xs text-purple-400 hover:text-purple-300">
+              <Link href="/music" className="text-xs text-purple-400 hover:text-purple-300 transition-colors">
                 View all
               </Link>
             </div>
             {music.loading ? (
-              <LoadingGrid count={2} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {Array.from({ length: 2 }).map((_, i) => <SkeletonCard key={i} />)}
+              </div>
             ) : music.error ? (
               <ErrorState message={music.error} onRetry={music.refetch} />
             ) : !music.data?.length ? (

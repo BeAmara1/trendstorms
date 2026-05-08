@@ -10,12 +10,22 @@ import {
 } from "recharts";
 
 const COLORS = [
-  "#a855f7", "#22d3ee", "#f43f5e", "#10b981",
-  "#f59e0b", "#3b82f6", "#ec4899", "#14b8a6",
+  "#8B5CF6", "#06B6D4", "#F43F5E", "#10B981",
+  "#F59E0B", "#3B82F6", "#EC4899", "#14B8A6",
 ];
 
 interface GenreDistributionChartProps {
   data: { name: string; value: number }[];
+}
+
+function CustomTooltip({ active, payload }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="glass-card px-3 py-2 text-xs space-y-1">
+      <p style={{ color: payload[0].color }} className="font-medium">{payload[0].name}</p>
+      <p className="text-zinc-300 tabular-nums">{payload[0].value}</p>
+    </div>
+  );
 }
 
 export default function GenreDistributionChart({
@@ -39,15 +49,13 @@ export default function GenreDistributionChart({
             <Cell key={i} fill={COLORS[i % COLORS.length]} />
           ))}
         </Pie>
-        <Tooltip
-          contentStyle={{
-            background: "#18181b",
-            border: "1px solid #27272a",
-            borderRadius: "8px",
-            color: "#e4e4e7",
-          }}
+        <Tooltip content={<CustomTooltip />} />
+        <Legend
+          wrapperStyle={{ fontSize: "11px", color: "#a1a1aa" }}
+          formatter={(value: string) => (
+            <span className="text-zinc-400">{value}</span>
+          )}
         />
-        <Legend />
       </PieChart>
     </ResponsiveContainer>
   );

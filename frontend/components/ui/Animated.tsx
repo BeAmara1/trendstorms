@@ -6,18 +6,56 @@ interface AnimatedWrapperProps {
   children: React.ReactNode;
   className?: string;
   delay?: number;
+  duration?: number;
 }
 
 export function FadeIn({
   children,
   className = "",
   delay = 0,
+  duration = 0.4,
 }: AnimatedWrapperProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay, ease: "easeOut" }}
+      transition={{ duration, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function SlideUp({
+  children,
+  className = "",
+  delay = 0,
+}: AnimatedWrapperProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function SlideLeft({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
       className={className}
     >
       {children}
@@ -28,9 +66,11 @@ export function FadeIn({
 export function StaggerContainer({
   children,
   className = "",
+  staggerDelay = 0.05,
 }: {
   children: React.ReactNode;
   className?: string;
+  staggerDelay?: number;
 }) {
   return (
     <motion.div
@@ -38,7 +78,7 @@ export function StaggerContainer({
       animate="visible"
       variants={{
         hidden: {},
-        visible: { transition: { staggerChildren: 0.05 } },
+        visible: { transition: { staggerChildren: staggerDelay } },
       }}
       className={className}
     >
@@ -57,9 +97,10 @@ export function StaggerItem({
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, y: 12 },
+        hidden: { opacity: 0, y: 16 },
         visible: { opacity: 1, y: 0 },
       }}
+      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
       className={className}
     >
       {children}
@@ -70,13 +111,15 @@ export function StaggerItem({
 export function ScaleOnHover({
   children,
   className = "",
+  scale = 1.02,
 }: {
   children: React.ReactNode;
   className?: string;
+  scale?: number;
 }) {
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className={className}
     >

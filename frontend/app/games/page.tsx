@@ -3,8 +3,10 @@
 import { DashboardLayout } from "@/components/layout";
 import { GameCard } from "@/components/cards";
 import { GenreDistributionChart } from "@/components/charts";
+import GlassCard from "@/components/ui/GlassCard";
+import HeroSection from "@/components/ui/HeroSection";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/Animated";
-import { LoadingGrid } from "@/components/ui/Loading";
+import { SkeletonCard, SkeletonChart } from "@/components/ui/Skeleton";
 import { ErrorState, EmptyState } from "@/components/ui/ErrorState";
 import { useAsync } from "@/hooks";
 import { fetchTopGames } from "@/services/api";
@@ -25,26 +27,27 @@ export default function GamesPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <FadeIn>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Games</h1>
-            <p className="text-zinc-400 text-sm mt-1">Top games by player count and rating</p>
-          </div>
-        </FadeIn>
+        <HeroSection
+          title="Games"
+          subtitle="Top games by player count and rating"
+          metric={data?.[0] ? { label: "Top Players", value: data[0].steam_players, decimals: 0 } : undefined}
+        />
 
         {genreChart.length > 0 && (
           <FadeIn delay={0.1}>
-            <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-5">
+            <GlassCard>
               <h2 className="text-white text-sm font-semibold mb-4">Genre Distribution</h2>
               <GenreDistributionChart data={genreChart} />
-            </div>
+            </GlassCard>
           </FadeIn>
         )}
 
         <section>
           <h2 className="text-white text-lg font-semibold mb-4">All Games</h2>
           {loading ? (
-            <LoadingGrid count={8} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+            </div>
           ) : error ? (
             <ErrorState message={error} onRetry={refetch} />
           ) : !data?.length ? (
