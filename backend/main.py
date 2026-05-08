@@ -1,24 +1,82 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
+import time
+
+from app.routes import trends, games, music, movies, analytics
+from app.services.logger import get_logger
+
+logger = get_logger("api")
+
 
 app = FastAPI(
     title="Trendpulse API",
-    description="Cultural trends analytics dashboard API",
-    version="0.1.0",
+    description="Cultural trends analytics dashboard API using Spotify, Steam, TMDB and Google Trends data.",
+    version="0.2.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start = time.time()
+    response = await call_next(request)
+    duration = time.time() - start
+    logger.info(
+        "%s %s -> %d (%.2fms)",
+        request.method,
+        request.url.path,
+        response.status_code,
+        duration * 1000,
+    )
+    return response
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled error on %s %s: %s", request.method, request.url.path, str(exc))
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"},
+    )
+
+
+@app.exception_handler(SQLAlchemyError)
+async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
+    logger.error("Database error on %s %s: %s", request.method, request.url.path, str(exc))
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Database error"},
+    )
+
+
+app.include_router(trends.router)
+app.include_router(games.router)
+app.include_router(music.router)
+app.include_router(movies.router)
+app.include_router(analytics.router)
+
+
 @app.get("/")
 def root():
-    return {"message": "Trendpulse API running"}
+    return {
+        "message": "Trendpulse API running",
+        "docs": "/docs",
+        "redoc": "/redoc",
+    }
 
 
 @app.get("/health")

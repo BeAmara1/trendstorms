@@ -32,3 +32,6 @@ docker-data/
 
 # Logs
 *.log
+
+# SQLite test db
+backend/test.db
