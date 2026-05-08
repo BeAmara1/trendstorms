@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 from logging.config import fileConfig
@@ -17,6 +18,10 @@ config = context.config
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
+database_url = os.getenv("DATABASE_URL")
+if database_url:
+    config.set_main_option("sqlalchemy.url", database_url)
 
 from app.database.base import Base
 from app.models import Trend, Game, Music, Movie, Analytics
