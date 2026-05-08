@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout";
 import { MovieCard } from "@/components/cards";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/Animated";
 import { LoadingGrid } from "@/components/ui/Loading";
 import { ErrorState, EmptyState } from "@/components/ui/ErrorState";
 import { useAsync } from "@/hooks";
@@ -21,40 +22,49 @@ export default function MoviesPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Movies & TV</h1>
-          <p className="text-zinc-400 text-sm mt-1">Trending movies and TV shows</p>
-        </div>
+        <FadeIn>
+          <div>
+            <h1 className="text-2xl font-bold text-white">Movies & TV</h1>
+            <p className="text-zinc-400 text-sm mt-1">Trending movies and TV shows</p>
+          </div>
+        </FadeIn>
 
-        <div className="flex gap-2">
-          {(["trending", "movies", "tv"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
-                tab === t
-                  ? "bg-purple-600 text-white"
-                  : "bg-zinc-800 text-zinc-400 hover:text-white"
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-
-        {loading ? (
-          <LoadingGrid count={8} />
-        ) : error ? (
-          <ErrorState message={error} onRetry={refetch} />
-        ) : !data?.length ? (
-          <EmptyState />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {data.map((m: any) => (
-              <MovieCard key={m.id} movie={m} />
+        <FadeIn delay={0.05}>
+          <div className="flex gap-2">
+            {(["trending", "movies", "tv"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
+                  tab === t
+                    ? "bg-purple-600 text-white"
+                    : "bg-zinc-800 text-zinc-400 hover:text-white"
+                }`}
+              >
+                {t}
+              </button>
             ))}
           </div>
-        )}
+        </FadeIn>
+
+        <section>
+          <h2 className="text-white text-lg font-semibold mb-4 capitalize">{tab} Highlights</h2>
+          {loading ? (
+            <LoadingGrid count={8} />
+          ) : error ? (
+            <ErrorState message={error} onRetry={refetch} />
+          ) : !data?.length ? (
+            <EmptyState />
+          ) : (
+            <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {data.map((m: any) => (
+                <StaggerItem key={m.id}>
+                  <MovieCard movie={m} />
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          )}
+        </section>
       </div>
     </DashboardLayout>
   );
