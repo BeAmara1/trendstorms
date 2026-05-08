@@ -8,6 +8,8 @@ from sqlalchemy.exc import SQLAlchemyError
 import time
 
 from app.config import settings
+from app.database.base import Base
+from app.database.connection import engine
 from app.jobs.scheduler import scheduler
 from app.middleware.rate_limit import RateLimitMiddleware
 from app.routes import trends, games, music, movies, analytics, system
@@ -22,6 +24,8 @@ async def lifespan(app: FastAPI):
         logger.info("Starting scheduler in production mode...")
     else:
         logger.info("Starting scheduler...")
+    Base.metadata.create_all(bind=engine)
+    logger.info("Database tables created")
     scheduler.start()
     yield
     logger.info("Shutting down scheduler...")
