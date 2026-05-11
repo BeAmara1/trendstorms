@@ -15,8 +15,23 @@ import type {
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000",
-  timeout: 10000,
+  timeout: 60000,
 });
+
+let isRetrying = false;
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (!isRetrying && error.code === "ECONNABORTED") {
+      isRetrying = true;
+      await new Promise((r) => setTimeout(r, 3000));
+      isRetrying = false;
+      return api.request(error.config);
+    }
+    return Promise.reject(error);
+  }
+);
 
 export async function fetchTrends(params?: {
   category?: string;
