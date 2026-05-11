@@ -11,6 +11,19 @@ class TrendsRepository:
         self.db = db
 
     def save_trend(self, data: dict[str, Any]) -> Trend:
+        existing = (
+            self.db.query(Trend)
+            .filter(Trend.title == data["title"], Trend.source == data["source"])
+            .first()
+        )
+        if existing:
+            existing.score = data.get("score", existing.score)
+            existing.growth = data.get("growth", existing.growth)
+            existing.category = data.get("category", existing.category)
+            existing.extra_data = str(data.get("extra", {}))
+            self.db.commit()
+            self.db.refresh(existing)
+            return existing
         trend = Trend(
             title=data["title"],
             category=data["category"],

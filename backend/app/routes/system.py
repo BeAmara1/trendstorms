@@ -113,3 +113,47 @@ def run_seed(db: Session):
 def seed_endpoint(db: Session = Depends(get_session)):
     result = run_seed(db)
     return {"message": result}
+
+
+@router.post("/refresh")
+def refresh_data(db: Session = Depends(get_session)):
+    from app.analytics import HypeScoreEngine
+    from app.pipeline.ingestion import run_all_pipelines
+
+    results = run_all_pipelines(db)
+
+    engine = HypeScoreEngine(db)
+    snapshots = engine.save_daily_snapshot()
+
+    return {
+        "message": "Data refresh complete",
+        "pipelines": results,
+        "analytics_snapshots": len(snapshots),
+    }
+
+
+@router.post("/reset")
+def reset_and_refresh(db: Session = Depends(get_session)):
+    from app.analytics import HypeScoreEngine
+    from app.pipeline.ingestion import run_all_pipelines
+
+    db.query(Analytics).delete()
+    db.query(Trend).delete()
+    db.query(Game).delete()
+    db.query(Music).delete()
+    db.query(Movie).delete()
+    db.commit()
+    logger.info("All data cleared")
+
+    run_seed(db)
+
+    results = run_all_pipelines(db)
+
+    engine = HypeScoreEngine(db)
+    snapshots = engine.save_daily_snapshot()
+
+    return {
+        "message": "Database reset and refreshed",
+        "pipelines": results,
+        "analytics_snapshots": len(snapshots),
+    }
