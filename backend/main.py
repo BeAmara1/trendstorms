@@ -10,6 +10,7 @@ import time
 from app.config import settings
 from app.database.base import Base
 from app.database.connection import engine
+from app.database.session import SessionLocal
 from app.jobs.scheduler import scheduler
 from app.middleware.rate_limit import RateLimitMiddleware
 from app.routes import trends, games, music, movies, analytics, system
@@ -26,6 +27,21 @@ async def lifespan(app: FastAPI):
         logger.info("Starting scheduler...")
     Base.metadata.create_all(bind=engine)
     logger.info("Database tables created")
+
+    from app.models.trend import Trend
+    db = SessionLocal()
+    try:
+        if db.query(Trend).count() == 0:
+            from app.routes.system import run_seed
+            logger.info("Empty database detected — seeding sample data...")
+            run_seed(db)
+        else:
+            logger.info("Database already has data, skipping seed")
+    except Exception as e:
+        logger.warning("Seed check failed: %s", str(e))
+    finally:
+        db.close()
+
     scheduler.start()
     yield
     logger.info("Shutting down scheduler...")
